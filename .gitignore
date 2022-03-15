@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# Remove build
+build
+
+# Ignore vscode
+.vscode
