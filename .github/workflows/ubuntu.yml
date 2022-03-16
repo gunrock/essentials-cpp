@@ -26,8 +26,7 @@ jobs:
         run: gcc --version && g++ --version
 
       - name: Install tbb library
-        run: sudo apt update
-        run: sudo apt install libtbb-dev
+        run: sudo apt update && sudo apt install libtbb-dev
       
       - name: Configure cmake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
