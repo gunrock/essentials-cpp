@@ -31,4 +31,4 @@ jobs:
         run: cmake --build ${{github.workspace}}/build
       
       - name: Run the algorithm
-        run: ${{github.workspace}}/build/bin/sssp ${{github.workspace}}/datasets/chesapeake/chesapeake.mtx
+        run: ${{github.workspace}}\build\bin\Debug\sssp.exe ${{github.workspace}}\datasets\chesapeake\chesapeake.mtx
