@@ -15,8 +15,8 @@ Single-Source Shortest Path (SSSP) implementation in modern C++ for 2022 IPDPS w
 Before building this project, make sure your system/compiler supports **C++20** and **cmake**.
 
 ```bash
-git clone https://github.com/owensgroup/sssp.git
-cd sssp
+git clone https://github.com/gunrock/essentials-cpp.git
+cd essentials-cpp
 mkdir build && cd build
 cmake .. 
 make
