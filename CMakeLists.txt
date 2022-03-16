@@ -11,7 +11,7 @@
 # ./cmake-[x.xx.x]-linux-x86_64.sh
 # sudo mv cmake-[x.xx.x]-linux-x86_64 /opt/cmake
 # sudo ln -s /opt/cmake/bin/* /usr/local/bin/
-cmake_minimum_required(VERSION 3.20.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.22.3 FATAL_ERROR)
 
 # Project name.
 project(essentials

@@ -1,6 +1,16 @@
 # Essentials of Parallel Graph Analytics
 Single-Source Shortest Path (SSSP) implementation in modern C++ for 2022 IPDPS workshop on Graphs, Architectures, Programming, and Learning (GrAPL 2022) submission.
 
+## Requirements
+- `C++20` for linux, `C++23` for windows.
+- `cmake` version 22.3.3.
+- `tbb` library for execution policies.
+
+```
+sudo apt update
+sudo apt install libtbb-dev
+```
+
 ## Quick Start Guide
 Before building this project, make sure your system/compiler supports **C++20** and **cmake** (see `CMakeLists.txt` for the version).
 
