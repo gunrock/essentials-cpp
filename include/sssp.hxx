@@ -42,9 +42,9 @@ struct frontier_t {
   // Get the number of active vertices.
   int size() { return active_vertices.size(); }
   // Get the active vertex at a given index.
-  type_t get_active_vertex(int const& i) { return active_vertices[i]; }
+  type_t get_active_vertex(type_t const& i) { return active_vertices[i]; }
   // Add a vertex to the frontier.
-  void add_vertex(int const& v) { active_vertices.push_back(v); }
+  void add_vertex(type_t const& v) { active_vertices.push_back(v); }
 };
 
 // Compressed-Sparse Row (CSR) matrix.
@@ -74,6 +74,10 @@ struct csr_t {
 template <typename vertex_t, typename edge_t, typename weight_t>
 struct graph_t : public csr_t<vertex_t, edge_t, weight_t> {
   using csr_type = csr_t<vertex_t, edge_t, weight_t>;
+  using vertex_type = vertex_t;
+  using edge_type = edge_t;
+  using weight_type = weight_t;
+
   graph_t(vertex_t& rows,
           vertex_t& cols,
           edge_t& nnzs,
@@ -101,7 +105,7 @@ my_frontier_t neighbors_expand(my_graph_t& g,
                                expand_cond_t condition) {
   std::mutex m;
   my_frontier_t output;
-  auto expand = [&](int const& v) {
+  auto expand = [&](auto const& v) {
     // For all edges of vertex v.
     for (auto e : g.get_edges(v)) {
       auto n = g.get_dest_vertex(e);
@@ -137,11 +141,14 @@ T min(T* a, T b, lock_t& m) {
 }  // namespace atomic
 
 template <typename my_graph_t, typename vertex_t>
-std::vector<float> sssp(my_graph_t& g, vertex_t const& source) {
+auto sssp(my_graph_t& g, vertex_t const& source) {
+  using edge_t = typename my_graph_t::edge_type;
+  using weight_t = typename my_graph_t::weight_type;
+
   // Initialize data.
-  std::vector<float> distances(g.get_num_vertices());
+  std::vector<weight_t> distances(g.get_num_vertices());
   for (auto v : g.get_vertices())
-    distances[v] = std::numeric_limits<float>::max();
+    distances[v] = std::numeric_limits<weight_t>::max();
   distances[source] = 0;
   frontier_t<vertex_t> f;
   f.add_vertex(source);
@@ -152,18 +159,18 @@ std::vector<float> sssp(my_graph_t& g, vertex_t const& source) {
     // Expand the frontier.
     f = neighbors_expand(g, f,
                          // User-defined condition for SSSP.
-                         [&](int const& src,      // source
-                             int const& dst,      // destination
-                             int const& edge,     // edge
-                             float const& weight  // weight
+                         [&](vertex_t const& src,    // source
+                             vertex_t const& dst,    // destination
+                             edge_t const& edge,     // edge
+                             weight_t const& weight  // weight
                          ) {
-                           float new_d = distances[src] + weight;
+                           weight_t new_d = distances[src] + weight;
                            // atomic::min atomically updates the distances array
                            // at dst with the minimum of new_d or its current
                            // value. And returns the old value. (eq: mutex
                            // updates)
-                           float curr_d = atomic::min(&distances[dst], new_d,
-                                                      m_locks[dst]);
+                           weight_t curr_d = atomic::min(&distances[dst], new_d,
+                                                         m_locks[dst]);
                            return new_d < curr_d;
                          });
   }
