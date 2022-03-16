@@ -1,6 +1,11 @@
 # Essentials of Parallel Graph Analytics
 Single-Source Shortest Path (SSSP) implementation in modern C++ for 2022 IPDPS workshop on Graphs, Architectures, Programming, and Learning (GrAPL 2022) submission.
 
+| System  | Version                                                                                                                                                       | Status                                                                                                                                                   |
+|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Ubuntu  | [Ubuntu 20.04](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources)        | [![Ubuntu](https://github.com/neoblizz/sssp/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/neoblizz/sssp/actions/workflows/ubuntu.yml)    |
+| Windows | [Windows Server 2019](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources) | [![Windows](https://github.com/neoblizz/sssp/actions/workflows/windows.yml/badge.svg)](https://github.com/neoblizz/sssp/actions/workflows/windows.yml) |
+
 ## Requirements
 - `C++20` for linux, `C++23` for windows.
 - `cmake` version 3.22.2.
