@@ -42,7 +42,7 @@ int validate(vertex_t& n_vertices,
                       std::vector<std::pair<vertex_t, weight_t>>,
                       prioritize<vertex_t, weight_t>>
       pq;
-  pq.push(std::make_pair(single_source, 0.0));
+  pq.push(std::make_pair(single_source, 0.0f));
 
   while (!pq.empty()) {
     std::pair<vertex_t, weight_t> curr = pq.top();
