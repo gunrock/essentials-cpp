@@ -12,7 +12,7 @@ Single-Source Shortest Path (SSSP) implementation in modern C++ for 2022 IPDPS w
 - `tbb` library for execution policies (automatically fetched using cmake).
 
 ## Quick Start Guide
-Before building this project, make sure your system/compiler supports **C++20** and **cmake** (see `CMakeLists.txt` for the version).
+Before building this project, make sure your system/compiler supports **C++20** and **cmake**.
 
 ```bash
 git clone https://github.com/owensgroup/sssp.git

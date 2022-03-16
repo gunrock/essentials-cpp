@@ -32,120 +32,58 @@
 #include <utility>
 #include <ranges>
 
-namespace sssp {
+#include <datastructs.hxx>
+#include <operators.hxx>
 
-template <typename type_t>
-struct frontier_t {
-  // Underlying representation of frontier.
-  std::vector<type_t> active_vertices;
-
-  // Get the number of active vertices.
-  int size() { return active_vertices.size(); }
-  // Get the active vertex at a given index.
-  type_t get_active_vertex(type_t const& i) { return active_vertices[i]; }
-  // Add a vertex to the frontier.
-  void add_vertex(type_t const& v) { active_vertices.push_back(v); }
-};
-
-// Compressed-Sparse Row (CSR) matrix.
-template <typename index_t, typename offset_t, typename value_t>
-struct csr_t {
-  index_t rows;
-  index_t cols;
-  offset_t nnzs;
-  std::vector<offset_t>& row_offsets;
-  std::vector<index_t>& column_indices;
-  std::vector<value_t>& values;
-
-  csr_t(index_t& _rows,
-        index_t& _cols,
-        offset_t& _nnzs,
-        std::vector<offset_t>& _row_offsets,
-        std::vector<index_t>& _column_indices,
-        std::vector<value_t>& _values)
-      : rows(_rows),
-        cols(_cols),
-        nnzs(_nnzs),
-        row_offsets(_row_offsets),
-        column_indices(_column_indices),
-        values(_values) {}
-};
-
-template <typename vertex_t, typename edge_t, typename weight_t>
-struct graph_t : public csr_t<vertex_t, edge_t, weight_t> {
-  using csr_type = csr_t<vertex_t, edge_t, weight_t>;
-  using vertex_type = vertex_t;
-  using edge_type = edge_t;
-  using weight_type = weight_t;
-
-  graph_t(vertex_t& rows,
-          vertex_t& cols,
-          edge_t& nnzs,
-          std::vector<edge_t>& row_offsets,
-          std::vector<vertex_t>& column_indices,
-          std::vector<weight_t>& values)
-      : csr_type(rows, cols, nnzs, row_offsets, column_indices, values) {}
-
-  weight_t get_edge_weight(edge_t const& e) { return csr_type::values[e]; }
-  vertex_t get_num_vertices() { return csr_type::rows; }
-  vertex_t get_dest_vertex(edge_t const& e) {
-    return csr_type::column_indices[e];
-  }
-  auto get_edges(const vertex_t& v) {
-    return std::ranges::iota_view{csr_type::row_offsets[v],
-                                  csr_type::row_offsets[v + 1]};
-  }
-  auto get_vertices() { return std::ranges::iota_view{0, get_num_vertices()}; }
-};
-
-// Neighbors expand implemented in C++ 20.
-template <typename my_graph_t, typename my_frontier_t, typename expand_cond_t>
-my_frontier_t neighbors_expand(my_graph_t& g,
-                               my_frontier_t& f,
-                               expand_cond_t condition) {
-  std::mutex m;
-  my_frontier_t output;
-  auto expand = [&](auto const& v) {
-    // For all edges of vertex v.
-    for (auto e : g.get_edges(v)) {
-      auto n = g.get_dest_vertex(e);
-      auto w = g.get_edge_weight(e);
-      // If expand condition is
-      // true, add the neighbor into
-      // the output frontier.
-      if (condition(v, n, e, w)) {
-        std::lock_guard<std::mutex> guard(m);
-        output.add_vertex(n);
-      }
-    }
-  };
-
-  // For all active vertices in the
-  // frontier, process in parallel.
-  std::for_each(std::execution::par, f.active_vertices.begin(),
-                f.active_vertices.end(), expand);
-
-  // Return the new output frontier.
-  return output;
-}
-
+namespace essentials {
 namespace atomic {
-template <typename T, typename lock_t>
-T min(T* a, T b, lock_t& m) {
+
+/**
+ * @brief Mutex-based atomic minimum.
+ *
+ * @par Overview
+ * Based on CUDA's atomicMin: reads the 32-bit or 64-bit word old located at the
+ * address address in global or shared memory, computes the minimum of old and
+ * val, and stores the result back to memory at the same address. These three
+ * operations are performed in one atomic transaction. The function returns old.
+ *
+ * @tparam T Type of the value.
+ * @param a Value to be compared.
+ * @param b Value to be compared.
+ * @param m Mutex to be used.
+ * @return T Minimum of a and b.
+ */
+template <typename type_t>
+type_t min(type_t* a, type_t b, std::mutex& m) {
   std::lock_guard<std::mutex> guard(m);
-  T old = *a;
-  T ans = std::min(old, b);
+  type_t old = *a;
+  type_t ans = std::min(old, b);
   *a = ans;
   return old;
 }
 }  // namespace atomic
 
+/**
+ * @brief Single-Source Shortest Paths (SSSP) algorithm.
+ *
+ * @par Overview
+ * This algorithm computes the shortest paths from a source vertex to all using
+ * TLAV's model + frontier-based data-centric abstraction.
+ *
+ * @tparam my_graph_t Graph type.
+ * @tparam vertex_t Type of the vertex.
+ * @param g Graph to be used.
+ * @param source Source vertex.
+ * @return auto Distances vector: shortest paths from source to all vertices.
+ */
 template <typename my_graph_t, typename vertex_t>
 auto sssp(my_graph_t& g, vertex_t const& source) {
   using edge_t = typename my_graph_t::edge_type;
   using weight_t = typename my_graph_t::weight_type;
 
-  // Initialize data.
+  // --
+  // Initialize
+
   std::vector<weight_t> distances(g.get_num_vertices());
   for (auto v : g.get_vertices())
     distances[v] = std::numeric_limits<weight_t>::max();
@@ -155,7 +93,11 @@ auto sssp(my_graph_t& g, vertex_t const& source) {
 
   std::vector<std::mutex> m_locks(g.get_num_vertices());
 
+  // --
+  // Main-loop (loop until frontier is empty)
+
   while (f.size() != 0) {
+    // --
     // Expand the frontier.
     f = neighbors_expand(g, f,
                          // User-defined condition for SSSP.
@@ -174,7 +116,10 @@ auto sssp(my_graph_t& g, vertex_t const& source) {
                            return new_d < curr_d;
                          });
   }
+
+  // --
+  // Return the distances vector.
   return distances;
 }
 
-}  // namespace sssp
+}  // namespace essentials

@@ -1,7 +1,7 @@
 /**
  * @file load.hxx
  * @author Muhammad Osama (mosama@ucdavis.edu)
- * @brief
+ * @brief Matrix Market file loader.
  * @version 0.1
  *
  * @copyright Copyright (c) 2022
@@ -14,7 +14,7 @@
 #include <assert.h>
 #include <externals/mmio.hxx>
 
-namespace sssp {
+namespace essentials {
 
 /**
  * @brief Matrix Market format supports two kind of formats, a sparse coordinate
@@ -71,10 +71,12 @@ struct matrix_market_t {
 
   int num_rows, num_columns, num_nonzeros;
 
+  // COO vectors
   std::vector<vertex_t> row_indices;
   std::vector<vertex_t> column_indices;
   std::vector<weight_t> values;
 
+  // CSR vectors
   std::vector<edge_t> Ap;
   std::vector<vertex_t> Aj;
   std::vector<weight_t> Ax;
@@ -86,15 +88,12 @@ struct matrix_market_t {
   matrix_market_storage_scheme_t scheme;  // Storage scheme
 
   /**
-   * @brief Loads the given .mtx file into a coordinate format, and returns the
-   * coordinate array. This needs to be further extended to support dense
-   * arrays, those are the only two formats mtx are written in.
+   * @brief Loads the given .mtx file into a coordinate (COO) and
+   * compressed-sparse row (CSR) formats.
    *
    * @param _filename input file name (.mtx)
    */
-  matrix_market_t(std::string _filename) {
-    filename = _filename;
-
+  matrix_market_t(std::string _filename) : filename(_filename) {
     file_t file;
 
     // Load MTX information
@@ -238,4 +237,4 @@ struct matrix_market_t {
   }
 };
 
-}  // namespace sssp
+}  // namespace essentials

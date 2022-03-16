@@ -14,7 +14,7 @@
 #include <queue>
 #include <vector>
 
-namespace sssp {
+namespace essentials {
 
 template <typename vertex_t, typename weight_t>
 class prioritize {
@@ -25,6 +25,20 @@ class prioritize {
   }
 };
 
+/**
+ * @brief CPU-sequential implementation of SSSP.
+ *
+ * @tparam vertex_t Type of vertex.
+ * @tparam edge_t Type of edge.
+ * @tparam weight_t Type of weight.
+ * @param n_vertices Number of vertices.
+ * @param row_offsets Row offsets.
+ * @param column_indices Column indices.
+ * @param values Values.
+ * @param single_source Source vertex.
+ * @param distances Distances vector to validate.
+ * @return int number of errors.
+ */
 template <typename vertex_t, typename edge_t, typename weight_t>
 int validate(vertex_t& n_vertices,
              std::vector<edge_t>& row_offsets,
@@ -32,6 +46,8 @@ int validate(vertex_t& n_vertices,
              std::vector<weight_t>& values,
              vertex_t& single_source,
              std::vector<weight_t>& distances) {
+  // --
+  // Initialize
   std::vector<weight_t> ref_distances(n_vertices);
   for (vertex_t i = 0; i < n_vertices; i++)
     ref_distances[i] = std::numeric_limits<weight_t>::max();
@@ -44,6 +60,8 @@ int validate(vertex_t& n_vertices,
       pq;
   pq.push(std::make_pair(single_source, 0.0f));
 
+  // --
+  // Main-loop using priority queue
   while (!pq.empty()) {
     std::pair<vertex_t, weight_t> curr = pq.top();
     pq.pop();
@@ -64,6 +82,8 @@ int validate(vertex_t& n_vertices,
     }
   }
 
+  // --
+  // Compare distances.
   int errors = 0;
   for (vertex_t i = 0; i < n_vertices; i++) {
     if (distances[i] != ref_distances[i]) {
@@ -76,4 +96,4 @@ int validate(vertex_t& n_vertices,
   return errors;
 }
 
-}  // namespace sssp
+}  // namespace essentials
