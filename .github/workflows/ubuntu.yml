@@ -30,9 +30,9 @@ jobs:
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: cmake -B ${{github.workspace}}/build
         shell: bash
-          env:
-            CC:   gcc-10
-            CXX:  g++-10
+        env:
+          CC:   gcc-10
+          CXX:  g++-10
         
       - name: Build all applications
         run: cmake  --build ${{github.workspace}}/build
