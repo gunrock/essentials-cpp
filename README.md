@@ -1,5 +1,5 @@
 # Essentials of Parallel Graph Analytics
-Single-Source Shortest Path (SSSP) implementation in modern C++ for 2022 IPDPS workshop on Graphs, Architectures, Programming, and Learning (GrAPL 2022) submission.
+Single-Source Shortest Path (SSSP) implementation in modern C++ for 2022 IPDPS workshop on Graphs, Architectures, Programming, and Learning (GrAPL 2022) submission. For a more complete implementation of the ideas presented in the paper, please refer to the on-going work of graph analytics on GPUs at [gunrock/essentials](https://github.com/gunrock/essentials).
 
 | System  | Version                                                                                                                                                       | Status                                                                                                                                                   |
 |---------|------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
