@@ -22,8 +22,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Install tbb library
-        run: sudo apt update && sudo apt install libtbb-dev
+      - run: sudo apt update && sudo apt install gcc-11 g++-11
+        shell: bash
+
       
       - name: Configure cmake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -31,8 +32,8 @@ jobs:
         run: cmake -B ${{github.workspace}}/build
         shell: bash
         env:
-          CC:   gcc-10
-          CXX:  g++-10
+          CC:   gcc-11
+          CXX:  g++-11
         
       - name: Build all applications
         run: cmake  --build ${{github.workspace}}/build
