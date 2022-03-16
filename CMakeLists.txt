@@ -25,7 +25,7 @@ find_package(TBB)
 set(PROJECT_DEPS_DIR externals)
 
 # Add executables.
-add_library(${PROJECT_NAME} SHARED 
+add_library(${PROJECT_NAME} STATIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sssp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/externals/mmio.cpp
 )
