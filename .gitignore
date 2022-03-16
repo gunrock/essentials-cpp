@@ -34,5 +34,8 @@
 # Remove build
 build
 
+# tbb
+externals/tbb-*
+
 # Ignore vscode
 .vscode

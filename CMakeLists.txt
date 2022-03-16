@@ -19,6 +19,9 @@ project(essentials
 )
 
 # Dependencies directory.
+include(${PROJECT_SOURCE_DIR}/cmake/TBB.cmake)
+set(TBB_DIR ${TBB_SOURCE_DIR}/lib/cmake/tbb)
+find_package(TBB)
 set(PROJECT_DEPS_DIR externals)
 
 # Add executables.
@@ -31,11 +34,14 @@ add_library(${PROJECT_NAME} SHARED
 target_include_directories(${PROJECT_NAME}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+    # PUBLIC ${TBB_INCLUDE_DIR}
     # PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_DEPS_DIR}
 )
 
 # Link with the libraries.
-# target_link_libraries(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC TBB::tbb
+)
 
 # Set target properties.
 # https://github.com/microsoft/STL/issues/1814
