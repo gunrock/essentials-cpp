@@ -6,10 +6,46 @@ Single-Source Shortest Path (SSSP) implementation in modern C++ for 2022 IPDPS w
 | Ubuntu  | [Ubuntu 20.04](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources)        | [![Ubuntu](https://github.com/neoblizz/sssp/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/neoblizz/sssp/actions/workflows/ubuntu.yml)    |
 | Windows | [Windows Server 2019](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources) | [![Windows](https://github.com/neoblizz/sssp/actions/workflows/windows.yml/badge.svg)](https://github.com/neoblizz/sssp/actions/workflows/windows.yml) |
 
-## Requirements
-- `C++20` for linux, `C++23` for windows.
-- `cmake` version 3.22.2.
-- `tbb` library for execution policies (automatically fetched using cmake).
+## Dependencies
+- `C++20` for linux (requires `gcc/g++-10.1` or higher), `C++23` for windows.
+- `cmake` version `3.22.2`.
+- `tbb` library for execution policies (automatically fetched using `cmake`).
+
+## Implementation Detail
+This code base makes use of modern C++ features such as `ranges`, `execution_policy`, and lambda expressions to implement the essential components for parallel graph analytics. We focus on a simple implementation of Single-Source Shortest Path (SSSP), but the concepts can easily be extended to support other graph algorithms such as Breadth-First Search with minor changes to the lambda expression during traversal.
+
+### SSSP Traversal Condition
+```cpp
+[&](vertex_t const& src,    // source
+    vertex_t const& dst,    // destination
+    edge_t const& edge,     // edge
+    weight_t const& weight  // weight
+   ) {
+     weight_t new_d = distances[src] + weight;
+     weight_t curr_d = atomic::min(&distances[dst], new_d, m_locks[dst]);
+     return new_d < curr_d;
+};
+```
+
+### BFS Traversal Condition
+```cpp
+[&](vertex_t const& src,    // source
+    vertex_t const& dst,    // destination
+    edge_t const& edge,     // edge
+    weight_t const& weight  // weight
+   ) {
+     // If the neighbor is not visited, update the distance. Returning false
+     // here means that the neighbor is not added to the output frontier, and
+     // instead an invalid vertex is added in its place. These invalides (-1 in
+     // most cases) can be removed using a filter operator or uniquify.
+     if (distances[dst] != std::numeric_limits<vertex_t>::max())
+       return false;
+     else
+       return (atomic::cas(
+                   &distances[dst], std::numeric_limits<vertex_t>::max(),
+                   iteration + 1) == std::numeric_limits<vertex_t>::max(), m_locks[dst]);
+};
+```
 
 ## Quick Start Guide
 Before building this project, make sure your system/compiler supports **C++20** and **cmake**.
