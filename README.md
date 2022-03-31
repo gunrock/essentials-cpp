@@ -7,7 +7,7 @@ Single-Source Shortest Path (SSSP) implementation in modern C++ for 2022 IPDPS w
 | Windows | [Windows Server 2019](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources) | [![Windows](https://github.com/neoblizz/sssp/actions/workflows/windows.yml/badge.svg)](https://github.com/neoblizz/sssp/actions/workflows/windows.yml) |
 
 ## Dependencies
-- `C++20` for linux (requires `gcc/g++-10.1` or higher), `C++23` for windows.
+- `C++20` for linux (requires `gcc/g++-11` or higher), `C++23` for windows.
 - `cmake` version `3.22.2`.
 - `tbb` library for execution policies (automatically fetched using `cmake`).
 
